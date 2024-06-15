@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"gopkg.in/yaml.v2"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/signal"
@@ -36,7 +35,7 @@ func checkNilErr(e error) {
 }
 
 func init() {
-	configFile, err := ioutil.ReadFile("config.yml")
+	configFile, err := os.ReadFile("config.yml")
 	checkNilErr(err)
 
 	err = yaml.Unmarshal(configFile, &config)
