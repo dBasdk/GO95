@@ -9,22 +9,24 @@ import (
 	"syscall"
 	"github.com/bwmarrin/discordgo"
 	"strings"
+	"protocol"
+	"commands"
 )
 
 
 
-type Config struct {
+type configStruct struct {
 	Token string
 }
 
-type CommandInfos struct {
-	Command string
-	Args []string
+type commandInfos struct {
+	command string
+	args []string
 }
 
 var (
-	Token string
-	config Config
+	token string
+	config configStruct
 )
 
 func checkNilErr(e error) {
@@ -41,7 +43,7 @@ func init() {
 	err = yaml.Unmarshal(configFile, &config)
 	checkNilErr(err)
 
-	Token = config.Token
+	token = config.Token
 }
 
 
@@ -58,13 +60,35 @@ func messageCreate(session *discordgo.Session, msg *discordgo.MessageCreate) {
 	fields := strings.Fields(parts)
 
 
-	var infos CommandInfos
+	var infos commandInfos
 	if len(fields) > 0 {
-		infos.Command = fields[0]
-		infos.Args = fields[1:]
+		infos.command = strings.ToLower(fields[0])
+		infos.args = fields[1:]
 	} else {
 		return
 	}
+	
+	var maxValue float64 = 0
+	var maxCommand commands.Command
+	var curr float64
+	for _, c := range commands.CommandsList {
+		curr = protocol.CheckSimilarity(infos.command, c.Name)
+		fmt.Println(curr, c.Name)
+		if curr > maxValue{
+			maxValue = curr
+			maxCommand = c
+			continue
+		}
+		for _, alias := range c.Aliases{
+			curr = protocol.CheckSimilarity(infos.command, alias)
+			if curr > maxValue{
+				maxValue = curr
+				maxCommand = c
+				break
+			}
+		}
+	}
+	fmt.Println(maxCommand, maxValue)
 
 	if msg.Author.Bot {
 		return
@@ -72,12 +96,14 @@ func messageCreate(session *discordgo.Session, msg *discordgo.MessageCreate) {
 }
 
 func main() {
-	if Token == "" {
+	if token == "" {
 		fmt.Println("Token not found in config.yml, please provide one")
 		os.Exit(1)
 	}
 
-	dg, err := discordgo.New("Bot " + Token)
+	fmt.Println(commands.CommandsList)
+
+	dg, err := discordgo.New("Bot " + token)
 	checkNilErr(err)
 	dg.AddHandler(messageCreate)
 
