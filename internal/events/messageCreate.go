@@ -55,7 +55,9 @@ func MessageCreate(session *discordgo.Session, msg *discordgo.MessageCreate) {
 			}
 		}
 	}
-	fmt.Println(maxCommand, maxValue)
+	commandFound := maxCommand
+	args := commandFound.ArgsParser(infos.args)
+	commandFound.FuncToCall(session, msg, args)
 
 	if msg.Author.Bot {
 		return

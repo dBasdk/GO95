@@ -1,16 +1,25 @@
 package commands
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/bwmarrin/discordgo"
+)
 
 func init() {
 	PingCommand := Command{
 		Name:       "ping",
-		Aliases:    []string{""},
+		Aliases:    []string{},
 		FuncToCall: Ping,
+		ArgsParser: PingParser,
 	}
 	CommandsList = append(CommandsList, PingCommand)
 }
 
-func Ping() {
-	fmt.Println("ping executed")
+func PingParser(args []string) []string {
+	return nil
+}
+
+func Ping(session *discordgo.Session, message *discordgo.MessageCreate, args []string) {
+	session.ChannelMessageSend(message.ChannelID, fmt.Sprintf("Ping (%d ms)", session.HeartbeatLatency()/1000000))
+	return 
 }
