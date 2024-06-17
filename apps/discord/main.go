@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"GO95/internal/discord"
+	"discord"
 	"GO95/internal/events"
 
 	"github.com/bwmarrin/discordgo"
@@ -45,13 +45,19 @@ func main() {
 		fmt.Println("Token not found in config.yml, please provide one")
 		os.Exit(1)
 	}
-	dclient, err := discord.NewClient(Token)
+
+	session, err := discordgo.New("Bot " + Token)
+
 	checkNilErr(err)
-	dclient.AddHandler(events.MessageCreate)
-	dclient.AddIntent([]discordgo.Intent{discordgo.IntentsGuildMessages})
-	err = dclient.Open()
+
+	session.AddHandler(events.MessageCreate)
+	
+	discord.AddIntent(session, []discordgo.Intent{discordgo.IntentsGuildMessages})
+	
+	err = session.Open()
 	checkNilErr(err)
-	defer dclient.Close()
+	defer session.Close()
+	
 	fmt.Println("Bot is now running.  Press CTRL-C to exit.")
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)

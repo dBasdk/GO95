@@ -1,13 +1,8 @@
-module commands
+module discord
 
 go 1.22.4
 
-replace discord => ../discord
-
-require (
-	discord v0.0.0-00010101000000-000000000000
-	github.com/bwmarrin/discordgo v0.28.1
-)
+require github.com/bwmarrin/discordgo v0.28.1
 
 require (
 	github.com/gorilla/websocket v1.4.2 // indirect

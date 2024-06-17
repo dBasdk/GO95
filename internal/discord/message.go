@@ -33,47 +33,44 @@ type ResponseData struct  {
 	SimpleMessage	string
 }
 
-func (c *Client) reply(event Event, data ResponseData) (e error) {
+func Reply(session *discordgo.Session, event Event, data ResponseData) (e error) {
 	switch event.Type {
     case MessageType:
     	switch data.Type {
     	case Embed:
-    		c.Session.ChannelMessageSendEmbedReply(
+    		session.ChannelMessageSendEmbedReply(
     			event.Message.ChannelID,
     			data.Embed,
-    			event.Message.Reference()
-    		)
+    			event.Message.Reference())
     	case SimpleMessage:
-    		c.Session.ChannelMessageSendReply(
+    		session.ChannelMessageSendReply(
     			event.Message.ChannelID,
     			data.SimpleMessage,
-    			event.Message.Reference()
-    		)
+    			event.Message.Reference())
     	}
     case InteractionType:
     	switch data.Type {
     	case Embed:
-    		c.Session.InteractionRespond(
-    			event.Interaction,
+    		session.InteractionRespond(
+    			event.Interaction.Interaction,
     			&discordgo.InteractionResponse{
     				Type: discordgo.InteractionResponseChannelMessageWithSource,
     				Data: &discordgo.InteractionResponseData{
     					Embeds: []*discordgo.MessageEmbed{
-    						data.Embed
-    					},
+    						data.Embed},
     				},
     			},
     		)
     	case SimpleMessage:
-    		c.Session.InteractionRespond(
-    			event.Interaction,
+    		session.InteractionRespond(
+    			event.Interaction.Interaction,
     			&discordgo.InteractionResponse{
     				Type: discordgo.InteractionResponseChannelMessageWithSource,
     				Data: &discordgo.InteractionResponseData{
-    					Content: data.SimpleMessage
-    				},
+    					Content: data.SimpleMessage},
     			},
     		)
     	}
     }
+    return 
 }
